@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظامي الكامل – شرح وتفاصيل</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f8ff;
+            color: #1a202c;
+            padding: 10px;
+            direction: rtl;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 28px;
+            padding: 20px 16px;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.08);
+        }
+        .header {
+            background: linear-gradient(135deg, #2b6cb0, #2c5282);
+            color: #fff;
+            border-radius: 20px;
+            padding: 16px 18px;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+        .header h1 {
+            font-size: 24px;
+        }
+        .header .sub {
+            font-size: 14px;
+            opacity: 0.85;
+        }
+        .current-task {
+            background: #ebf8ff;
+            border-right: 6px solid #2b6cb0;
+            border-radius: 16px;
+            padding: 16px;
+            margin: 12px 0;
+        }
+        .current-task .time {
+            font-size: 14px;
+            color: #4a5568;
+        }
+        .current-task .task {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2b6cb0;
+            margin: 4px 0;
+        }
+        .current-task .desc {
+            font-size: 15px;
+            color: #2d3748;
+        }
+        .current-task .details {
+            font-size: 14px;
+            color: #4a5568;
+            margin-top: 8px;
+            padding: 10px;
+            background: #f7fafc;
+            border-radius: 10px;
+            border-right: 4px solid #38a169;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+            flex-wrap: wrap;
+        }
+        .btn-group button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 40px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            min-width: 100px;
+        }
+        .btn-done {
+            background: #38a169;
+            color: #fff;
+        }
+        .btn-skip {
+            background: #e53e3e;
+            color: #fff;
+        }
+        .btn-done:disabled,
+        .btn-skip:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 8px;
+            text-align: center;
+            margin: 12px 0;
+        }
+        .stats-grid .item {
+            background: #f7fafc;
+            padding: 10px;
+            border-radius: 12px;
+        }
+        .stats-grid .item .num {
+            font-size: 22px;
+            font-weight: bold;
+            color: #2b6cb0;
+        }
+        .stats-grid .item .label {
+            font-size: 11px;
+            color: #718096;
+        }
+        .progress-bar {
+            background: #edf2f7;
+            border-radius: 30px;
+            height: 10px;
+            margin: 8px 0;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #2b6cb0;
+            border-radius: 30px;
+            transition: width 0.5s;
+            width: 0%;
+        }
+        .report {
+            background: #fffff0;
+            border-right: 5px solid #d69e2e;
+            border-radius: 14px;
+            padding: 14px;
+            margin: 12px 0;
+        }
+        .report h3 {
+            color: #975a16;
+            margin-bottom: 6px;
+        }
+        .report .positive {
+            color: #276749;
+        }
+        .report .negative {
+            color: #9b2c2c;
+        }
+        .report .suggestion {
+            color: #975a16;
+        }
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2d3748;
+            color: #fff;
+            padding: 14px 24px;
+            border-radius: 40px;
+            font-size: 16px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            z-index: 999;
+            display: none;
+            max-width: 90%;
+            text-align: center;
+        }
+        .toast.show {
+            display: block;
+            animation: fadeInUp 0.4s ease;
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+        .sugar-note {
+            background: #f0fff4;
+            border-radius: 12px;
+            padding: 8px 14px;
+            border: 1px solid #c6f6d5;
+            margin: 8px 0;
+            font-size: 14px;
+        }
+        .sugar-note span {
+            font-weight: bold;
+            color: #276749;
+        }
+        .history-btn {
+            background: #edf2f7;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 14px;
+            cursor: pointer;
+            margin: 6px 0;
+        }
+        .history-list {
+            max-height: 200px;
+            overflow-y: auto;
+            background: #f7fafc;
+            border-radius: 12px;
+            padding: 10px;
+            margin: 6px 0;
+            display: none;
+            text-align: right;
+        }
+        .history-list.show {
+            display: block;
+        }
+        .history-list .entry {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 13px;
+        }
+        .history-list .entry .h-status.done {
+            color: #38a169;
+        }
+        .history-list .entry .h-status.skipped {
+            color: #e53e3e;
+        }
+        .week-info {
+            background: #ebf8ff;
+            border-radius: 12px;
+            padding: 10px 14px;
+            margin: 8px 0;
+            font-size: 14px;
+            border: 1px solid #bee3f8;
+        }
+        .weight-estimate {
+            background: #e6fffa;
+            border-right: 5px solid #319795;
+            border-radius: 14px;
+            padding: 14px;
+            margin: 12px 0;
+        }
+        .weight-estimate h3 {
+            color: #285e61;
+        }
+        .weight-estimate .big {
+            font-size: 28px;
+            font-weight: bold;
+            color: #2b6cb0;
+        }
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #a0aec0;
+            margin-top: 16px;
+        }
+        .details-box {
+            background: #f7fafc;
+            border-radius: 12px;
+            padding: 12px;
+            margin: 6px 0;
+            border-right: 4px solid #2b6cb0;
+        }
+        .details-box strong {
+            color: #2b6cb0;
+        }
+        @media (max-width: 600px) {
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .current-task .task {
+                font-size: 18px;
+            }
+            .btn-group button {
+                font-size: 14px;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <div class="header">
+            <h1>📋 نظامي الكامل – شرح وتفاصيل</h1>
+            <div class="sub" id="headerDay">📅 ... — ⏰ ..:..</div>
+        </div>
+
+        <div class="week-info" id="weekInfo">📅 الأسبوع 1 — اليوم: ...</div>
+
+        <div class="sugar-note">
+            <span>🍬 سكر الدايت:</span> مسموح لك في القهوة والشاي فقط، ملعقة صغيرة كحد أقصى لكل مشروب.
+        </div>
+
+        <div class="current-task" id="currentTaskBox">
+            <div class="time" id="taskTime">⏰ الساعة ...</div>
+            <div class="task" id="taskTitle">...</div>
+            <div class="desc" id="taskDesc">...</div>
+            <div class="details" id="taskDetails"></div>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn-done" id="btnDone" onclick="markDone()">✅ نفذت</button>
+            <button class="btn-skip" id="btnSkip" onclick="markSkip()">⏭️ تخطيت</button>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width:0%;"></div>
+        </div>
+        <p style="text-align:center; font-size:13px; color:#4a5568;" id="progressText">0% من مهام اليوم</p>
+
+        <div class="stats-grid">
+            <div class="item"><div class="num" id="statDone">0</div><div class="label">✅ منفذة</div></div>
+            <div class="item"><div class="num" id="statSkipped">0</div><div class="label">⏭️ متخطية</div></div>
+            <div class="item"><div class="num" id="statPending">0</div><div class="label">⏳ متبقية</div></div>
+            <div class="item"><div class="num" id="statWeight">0</div><div class="label">⬇️ كجم نزول</div></div>
+        </div>
+
+        <div class="weight-estimate" id="weightEstimate">
+            <h3>⚖️ تقدير الوزن المفقود</h3>
+            <p>بناءً على التزامك اليومي، من المتوقع أن تفقد:</p>
+            <div style="display:flex; justify-content:space-around; flex-wrap:wrap; margin:8px 0;">
+                <div><span class="big" id="estDaily">0.5</span> <span style="font-size:14px;">كجم/يوم</span></div>
+                <div><span class="big" id="estWeekly">3.5</span> <span style="font-size:14px;">كجم/أسبوع</span></div>
+                <div><span class="big" id="estMonthly">14</span> <span style="font-size:14px;">كجم/شهر</span></div>
+            </div>
+            <p style="font-size:13px; color:#4a5568;">* تقدير يعتمد على معدل حرق 2500-3000 سعرة يومياً مع هذا النظام.</p>
+        </div>
+
+        <div class="report" id="reportBox">
+            <h3>📊 التقرير اليومي</h3>
+            <div id="reportContent"><p style="color:#718096; font-size:14px;">سيكون جاهزاً في نهاية اليوم.</p></div>
+        </div>
+
+        <button class="history-btn" onclick="toggleHistory()">📜 عرض سجل اليوم</button>
+        <div class="history-list" id="historyList"></div>
+
+        <div class="toast" id="toast"></div>
+        <div class="footer">💪 نظامك الكامل مع شرح لكل مهمة – تذكير وإشعارات</div>
+    </div>
+
+    <script>
+        // ============================================================
+        // 1. النظام الغذائي الكامل (4 أسابيع)
+        // ============================================================
+        var MEALS = {
+            week1: {
+                'السبت': { lunch: '3 حبات فاكهة (تفاح، برتقال، كيوي) + كوب لبن خالي الدسم', dinner: '250 غرام لحم مشوي مفروم + سلطة خضراء (خل وليمون)' },
+                'الأحد': { lunch: 'دجاجة كاملة مشوية (بدون جلد) + طماطم مشوية + برتقالة', dinner: '2 بيضة مسلوقة + سلطة + شريحة توست أسمر' },
+                'الإثنين': { lunch: 'جبنة قريش نصف كيلو (منزوعة الدسم) + توست أسمر + طماطم + خيار', dinner: '250 غرام لحم مشوي + سلطة' },
+                'الثلاثاء': { lunch: '3 حبات فاكهة مختلفة + كوب لبن خالي الدسم', dinner: '250 غرام لحم مفروم مشوي + سلطة' },
+                'الأربعاء': { lunch: '2 بيضة مسلوقة + طبق خضار مسلوق (بروكلي، قرنبيط، كوسا، جزر)', dinner: '200 غرام سمك مشوي أو تونة مصفاة + سلطة + برتقالة' },
+                'الخميس': { lunch: '3 حبات فاكهة مختلفة + كوب لبن خالي الدسم', dinner: '250 غرام لحم مشوي + سلطة' },
+                'الجمعة': { lunch: 'دجاجة كاملة مشوية + طبق خضار مسلوق + برتقالة', dinner: 'طبق خضار مسلوق فقط (لتفريغ الكبد)' }
+            },
+            week2: {
+                'السبت': { lunch: '3 حبات فاكهة مختلفة + كوب لبن خالي الدسم', dinner: '250 غرام لحم مشوي مفروم + سلطة' },
+                'الأحد': { lunch: 'دجاجة كاملة مشوية + طماطم مشوية + برتقالة', dinner: '2 بيضة مسلوقة + سلطة + توست أسمر' },
+                'الإثنين': { lunch: 'جبنة قريش نصف كيلو + توست أسمر + طماطم + خيار', dinner: '250 غرام لحم مشوي + سلطة' },
+                'الثلاثاء': { lunch: '3 حبات فاكهة مختلفة + كوب لبن خالي الدسم', dinner: '250 غرام لحم مفروم مشوي + سلطة' },
+                'الأربعاء': { lunch: '2 بيضة مسلوقة + طبق خضار مسلوق', dinner: '200 غرام سمك مشوي أو تونة + سلطة + برتقالة' },
+                'الخميس': { lunch: '3 حبات فاكهة مختلفة + كوب لبن خالي الدسم', dinner: '250 غرام لحم مشوي + سلطة' },
+                'الجمعة': { lunch: 'دجاجة كاملة مشوية + طبق خضار مسلوق + برتقالة', dinner: 'طبق خضار مسلوق فقط' }
+            },
+            week3: {
+                'السبت': { lunch: '4 حبات فاكهة مختلفة + كوب لبن خالي الدسم', dinner: '300 غرام لحم مشوي مفروم + سلطة' },
+                'الأحد': { lunch: 'دجاجة كاملة مشوية + طماطم مشوية + برتقالة + نصف أفوكادو', dinner: '2 بيضة مسلوقة + سلطة + شريحتي توست أسمر' },
+                'الإثنين': { lunch: 'جبنة قريش نصف كيلو + شريحتي توست أسمر + طماطم + خيار', dinner: '300 غرام لحم مشوي + سلطة' },
+                'الثلاثاء': { lunch: '4 حبات فاكهة مختلفة + كوب لبن خالي الدسم', dinner: '300 غرام لحم مفروم مشوي + سلطة' },
+                'الأربعاء': { lunch: '3 بيضات مسلوقة + طبق خضار مسلوق', dinner: '250 غرام سمك مشوي + سلطة + برتقالة' },
+                'الخميس': { lunch: '4 حبات فاكهة مختلفة + كوب لبن خالي الدسم', dinner: '300 غرام لحم مشوي + سلطة' },
+                'الجمعة': { lunch: 'دجاجة كاملة مشوية + طبق خضار مسلوق + برتقالة + نصف أفوكادو', dinner: 'طبق خضار مسلوق + 2 بيضة مسلوقة' }
+            },
+            week4: {
+                'السبت': { lunch: '3 حبات فاكهة مختلفة + كوب لبن خالي الدسم', dinner: '250 غرام لحم مشوي مفروم + سلطة' },
+                'الأحد': { lunch: 'دجاجة كاملة مشوية + طماطم مشوية + برتقالة', dinner: '2 بيضة مسلوقة + سلطة + توست أسمر' },
+                'الإثنين': { lunch: 'جبنة قريش نصف كيلو + توست أسمر + طماطم + خيار', dinner: '250 غرام لحم مشوي + سلطة' },
+                'الثلاثاء': { lunch: '3 حبات فاكهة مختلفة + كوب لبن خالي الدسم', dinner: '250 غرام لحم مفروم مشوي + سلطة' },
+                'الأربعاء': { lunch: '2 بيضة مسلوقة + طبق خضار مسلوق', dinner: '200 غرام سمك مشوي أو تونة + سلطة + برتقالة' },
+                'الخميس': { lunch: '3 حبات فاكهة مختلفة + كوب لبن خالي الدسم', dinner: '250 غرام لحم مشوي + سلطة' },
+                'الجمعة': { lunch: 'دجاجة كاملة مشوية + طبق خضار مسلوق + برتقالة', dinner: 'طبق خضار مسلوق فقط' }
+            }
+        };
+
+        var WEEKDAYS = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+
+        // ============================================================
+        // 2. المهام مع شرح تفصيلي لكل مهمة
+        // ============================================================
+        var TASK_DETAILS = {
+            'استيقظ': 'انهض من السرير، اذهب إلى الحمام، اغسل وجهك، وتوضأ للصلاة إن أردت. هذا ينشط الدورة الدموية.',
+            'اشرب ماء': 'اشرب نصف لتر (كوبان كبيران) من الماء الفاتر مع عصرة ليمون طازجة. هذا ينظف الكبد ويحرك الأمعاء.',
+            'مشي خفيف': 'امشِ في مكانك أو في الغرفة أو الشرفة لمدة 15 دقيقة. لا تشترط سرعة، فقط حرك جسمك.',
+            'قهوة سوداء': 'حضر كوباً من القهوة السوداء بدون سكر أو حليب. يمكنك إضافة ملعقة صغيرة من سكر الدايت. القهوة تزيد حرق الدهون 10%.',
+            'تمارين تنفس': 'اجلس مستقيماً. خذ شهيقاً عميقاً من الأنف لمدة 4 ثوانٍ (عدّد في رأسك 1-2-3-4). احبس النفس لثانية. ثم أخرج الزفير ببطء من الفم لمدة 6 ثوانٍ (عدّد 1-6). كرر هذا 10 مرات. هذا يحرق دهون البطن ويقلل التوتر.',
+            'تجهيز الطعام': 'حضر معك للعمل: علبة الإفطار (بيضتان مسلوقتان + نصف برتقالة)، علبة الغداء (حسب اليوم)، علبة سناك (خيارة أو جزر)، زجاجة ماء، وزجاجة خل التفاح.',
+            'الإفطار': 'تناول بيضتين مسلوقتين مع نصف برتقالة. البيض مصدر بروتين ممتاز، والبرتقال يمدك بفيتامين سي.',
+            'شاي أخضر': 'اشرب كوباً من الشاي الأخضر بدون سكر. يمكنك إضافة سكر دايت. الشاي الأخضر مضاد أكسدة ويساعد على حرق الدهون.',
+            'ماء': 'اشرب نصف لتر ماء (كوبان كبيران). الماء ضروري لحرق الدهون ومنع الجفاف.',
+            'خل التفاح': 'أضف ملعقة كبيرة (15 مل) من خل التفاح إلى كوب ماء فاتر واشربه. هذا يخفض سكر الدم ويمنع تخزين الدهون.',
+            'سناك خفيف': 'إذا شعرت بجوع شديد، تناول خيارة كبيرة أو جزرتين صغيرتين. هذا يملأ معدتك بدون سعرات حرارية.',
+            'قهوة سوداء': 'كوب قهوة سوداء بدون سكر. تزيد التركيز وتقلل الجوع حتى نهاية الدوام.',
+            'العودة من العمل': 'عد إلى المنزل. غير ملابسك، وتوضأ. حان وقت الراحة والاستعداد للرياضة والوجبات.',
+            'وجبة الغداء': 'تناول وجبة الغداء المحددة في جدول الأسبوع (انظر أعلاه). هذه هي وجبتك الأساسية بعد العمل.',
+            'المكملات': 'تناول معاً: فيتامين C 1000 مجم، فيتامين B100، فيتامين D3+K2، والزنك. جميعهم بعد الأكل مباشرة لتجنب حموضة المعدة.',
+            'مشي سريع': 'امشِ بسرعة معتدلة لمدة 20 دقيقة. يجب أن تتعرق قليلاً. هذا أهم تمرين في اليوم لحرق الدهون المخزنة.',
+            'تمارين كرسي': 'اجلس على كرسي. ارفع رجليك للأعلى بزاوية 90 درجة 20 مرة، ثم كرر 3 مرات. هذا يقوي عضلات البطن والفخذين.',
+            'زنجبيل وقرفة': 'اغلي كوب ماء مع نصف ملعقة زنجبيل مطحون ونصف ملعقة قرفة. اشربه دافئاً. يرفع حرارة الجسم ويزيد الحرق.',
+            'ماء + ألياف': 'اخلط ملعقة صغيرة من ألياف Psyllium في كوب ماء واشربها فوراً. تمنع الإمساك الناتج عن كثرة البروتين والبيض.',
+            'وجبة العشاء': 'تناول وجبة العشاء المحددة في جدول الأسبوع (انظر أعلاه). هذه وجبتك الأخيرة في اليوم.',
+            'شاي بابونج': 'اشرب كوباً من شاي البابونج أو النعناع بدون سكر. يساعد على الاسترخاء والنوم العميق.',
+            'مكملات ليلية': 'تناول قرصين من ماغنيسيوم MagCitra + كبسولة أوميغا 3. الماغنيسيوم يريح العضلات ويساعد على النوم.',
+            'النوم': 'اخلد إلى النوم في هذا الوقت. النوم العميق 7-8 ساعات ضروري لحرق الدهون وإفراز هرمون النمو.'
+        };
+
+        // ============================================================
+        // 3. المهام الأساسية (الجدول الزمني اليومي)
+        // ============================================================
+        var BASE_TASKS = [
+            { time: '6:30 ص', icon: '🛏️', title: 'استيقظ', desc: 'انهض من السرير' },
+            { time: '6:35 ص', icon: '💧', title: 'اشرب ماء', desc: 'نصف لتر ماء + ليمون' },
+            { time: '6:40 ص', icon: '🚶', title: 'مشي خفيف', desc: '15 دقيقة' },
+            { time: '7:00 ص', icon: '☕', title: 'قهوة سوداء', desc: 'بدون سكر' },
+            { time: '7:15 ص', icon: '🧘', title: 'تمارين تنفس', desc: 'شهيق 4 ث – زفير 6 ث (10 مرات)' },
+            { time: '7:30 ص', icon: '🎒', title: 'تجهيز الطعام', desc: 'جهز علب الطعام للعمل' },
+            { time: '8:00 ص', icon: '🍳', title: 'الإفطار', desc: 'بيضتان مسلوقتان + نصف برتقالة' },
+            { time: '9:00 ص', icon: '🍵', title: 'شاي أخضر', desc: 'بدون سكر' },
+            { time: '10:00 ص', icon: '💧', title: 'ماء', desc: 'نصف لتر' },
+            { time: '11:00 ص', icon: '🍏', title: 'خل التفاح', desc: 'ملعقة في كوب ماء' },
+            { time: '11:30 ص', icon: '🥒', title: 'سناك خفيف', desc: 'خيارة أو جزر (إن جعت)' },
+            { time: '12:00 ظ', icon: '💧', title: 'ماء', desc: 'نصف لتر' },
+            { time: '1:00 م', icon: '☕', title: 'قهوة سوداء', desc: 'بدون سكر' },
+            { time: '2:00 م', icon: '💧', title: 'ماء', desc: 'نصف لتر' },
+            { time: '3:00 م', icon: '🏠', title: 'العودة من العمل', desc: 'عد إلى المنزل' },
+            { time: '3:15 م', icon: '🍗', title: 'وجبة الغداء', desc: '' },
+            { time: '3:30 م', icon: '💊', title: 'المكملات', desc: 'C1000 + B100 + D3+K2 + زنك' },
+            { time: '4:00 م', icon: '🚶', title: 'مشي سريع', desc: '20 دقيقة' },
+            { time: '5:00 م', icon: '💧', title: 'ماء', desc: 'نصف لتر' },
+            { time: '6:00 م', icon: '💪', title: 'تمارين كرسي', desc: '20 مرة × 3' },
+            { time: '7:00 م', icon: '☕', title: 'زنجبيل وقرفة', desc: 'كوب دافئ' },
+            { time: '7:30 م', icon: '💧', title: 'ماء + ألياف', desc: 'ملعقة Psyllium' },
+            { time: '8:00 م', icon: '🥗', title: 'وجبة العشاء', desc: '' },
+            { time: '8:30 م', icon: '🍵', title: 'شاي بابونج', desc: 'بدون سكر' },
+            { time: '9:00 م', icon: '💊', title: 'مكملات ليلية', desc: 'ماغنيسيوم + أوميغا 3' },
+            { time: '9:30 م', icon: '💧', title: 'ماء', desc: 'نصف لتر' },
+            { time: '10:30 م', icon: '😴', title: 'النوم', desc: 'اخلد إلى النوم' }
+        ];
+
+        // ============================================================
+        // 4. الدوال الأساسية
+        // ============================================================
+        function getDayName() { return WEEKDAYS[new Date().getDay()]; }
+
+        function getCurrentWeek() {
+            var start = new Date(2026, 6, 20);
+            var now = new Date();
+            var diff = Math.floor((now - start) / (1000 * 60 * 60 * 24));
+            var week = Math.floor(diff / 7) + 1;
+            if (week < 1) week = 1;
+            if (week > 4) week = 4;
+            return week;
+        }
+
+        function getTasks() {
+            var day = getDayName();
+            var week = getCurrentWeek();
+            var weekKey = 'week' + week;
+            var lunch = 'حسب جدول الأسبوع';
+            var dinner = 'حسب جدول الأسبوع';
+            if (MEALS[weekKey] && MEALS[weekKey][day]) {
+                lunch = MEALS[weekKey][day].lunch;
+                dinner = MEALS[weekKey][day].dinner;
+            }
+            return BASE_TASKS.map(function(t) {
+                var d = t.desc;
+                if (t.title === 'وجبة الغداء') d = lunch;
+                if (t.title === 'وجبة العشاء') d = dinner;
+                var details = TASK_DETAILS[t.title] || 'اتبع التعليمات العامة لهذه المهمة.';
+                return { time: t.time, icon: t.icon, title: t.title, desc: d, details: details };
+            });
+        }
+
+        var allTasks = getTasks();
+        var completed = {};
+        var skipped = {};
+
+        try {
+            var saved = localStorage.getItem('myLog_' + getDayName());
+            if (saved) {
+                var data = JSON.parse(saved);
+                completed = data.completed || {};
+                skipped = data.skipped || {};
+            }
+        } catch (e) {}
+
+        function saveState() {
+            try {
+                localStorage.setItem('myLog_' + getDayName(), JSON.stringify({ completed: completed, skipped: skipped }));
+            } catch (e) {}
+        }
+
+        function getCurrentIndex() {
+            var now = new Date();
+            var totalMin = now.getHours() * 60 + now.getMinutes();
+            var times = allTasks.map(function(t) {
+                var p = t.time.match(/(\d+):(\d+)\s*(ص|م)/);
+                if (!p) return 9999;
+                var h = parseInt(p[1]);
+                var m = parseInt(p[2]);
+                if (p[3] === 'م' && h < 12) h += 12;
+                if (p[3] === 'ص' && h === 12) h = 0;
+                return h * 60 + m;
+            });
+            var idx = 0;
+            for (var i = 0; i < times.length; i++) {
+                if (totalMin >= times[i] - 5) idx = i;
+            }
+            for (var j = idx; j < allTasks.length; j++) {
+                if (!completed[j] && !skipped[j]) return j;
+            }
+            return -1;
+        }
+
+        function updateDisplay() {
+            var now = new Date();
+            var day = getDayName();
+            var week = getCurrentWeek();
+            document.getElementById('headerDay').textContent = '📅 ' + day + ' — ⏰ ' + now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString()
+                .padStart(2, '0');
+            document.getElementById('weekInfo').textContent = '📅 الأسبوع ' + week + ' — اليوم: ' + day;
+
+            var idx = getCurrentIndex();
+            if (idx === -1) {
+                document.getElementById('taskTime').textContent = '🎉 اليوم كامل';
+                document.getElementById('taskTitle').textContent = '✅ أنجزت كل المهام';
+                document.getElementById('taskDesc').textContent = 'أحسنت! استعد للنوم الهادئ.';
+                document.getElementById('taskDetails').textContent = '🌟 يومك كان منتجاً، استمر بهذا الأداء.';
+                document.getElementById('btnDone').disabled = true;
+                document.getElementById('btnSkip').disabled = true;
+            } else {
+                var t = allTasks[idx];
+                document.getElementById('taskTime').textContent = '⏰ الساعة ' + t.time;
+                document.getElementById('taskTitle').textContent = t.icon + ' ' + t.title;
+                document.getElementById('taskDesc').textContent = t.desc;
+                document.getElementById('taskDetails').textContent = '📖 ' + t.details;
+                document.getElementById('btnDone').disabled = false;
+                document.getElementById('btnSkip').disabled = false;
+            }
+
+            var doneCount = Object.keys(completed).length;
+            var skipCount = Object.keys(skipped).length;
+            var pending = allTasks.length - doneCount - skipCount;
+            document.getElementById('statDone').textContent = doneCount;
+            document.getElementById('statSkipped').textContent = skipCount;
+            document.getElementById('statPending').textContent = pending;
+
+            var progress = allTasks.length > 0 ? ((doneCount + skipCount) / allTasks.length * 100) : 0;
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('progressText').textContent = Math.round(progress) + '% من مهام اليوم';
+
+            // تقدير الوزن
+            var weightLost = (doneCount / allTasks.length) * 0.8;
+            var dailyEst = (doneCount / allTasks.length) * 0.5;
+            document.getElementById('statWeight').textContent = Math.round((doneCount / allTasks.length) * 0.8 * 10) / 10;
+            document.getElementById('estDaily').textContent = Math.round(dailyEst * 10) / 10;
+            document.getElementById('estWeekly').textContent = Math.round(dailyEst * 7 * 10) / 10;
+            document.getElementById('estMonthly').textContent = Math.round(dailyEst * 30 * 10) / 10;
+
+            // التقرير
+            updateReport(doneCount, skipCount, pending);
+            updateHistory();
+            sendNotification(idx);
+        }
+
+        function updateReport(doneCount, skipCount, pending) {
+            var reportDiv = document.getElementById('reportContent');
+            var positives = [],
+                negatives = [],
+                suggestions = [];
+            var total = allTasks.length;
+
+            if (doneCount > total * 0.7) {
+                positives.push('✅ أداء ممتاز! أنجزت أكثر من 70% من مهامك.');
+            } else if (doneCount > total * 0.5) {
+                positives.push('✅ أداء جيد، أنجزت أكثر من نصف المهام.');
+            } else {
+                negatives.push('⚠️ عدد المهام المنفذة قليل، حاول التركيز أكثر.');
+            }
+
+            if (skipCount > 0) {
+                negatives.push('⏭️ تخطيت ' + skipCount + ' مهمة، حاول تقليل التخطي غداً.');
+            }
+
+            if (pending > 0) {
+                suggestions.push('💡 لديك ' + pending + ' مهام متبقية، حاول إنهاءها قبل النوم.');
+            }
+
+            if (doneCount === total && total > 0) {
+                positives.push('🎉 أنجبت كل المهام! يومك مثالي.');
+            }
+
+            var skippedTasks = [];
+            for (var key in skipped) {
+                if (skipped.hasOwnProperty(key)) {
+                    var idx = parseInt(key);
+                    if (allTasks[idx]) skippedTasks.push(allTasks[idx].title);
+                }
+            }
+            if (skippedTasks.length > 0) {
+                suggestions.push('📌 المهام المتخطية: ' + skippedTasks.join('، ') + '. حاول إعادة جدولتها.');
+            }
+
+            var html = '';
+            if (positives.length) html += '<div class="positive">' + positives.join('<br>') + '</div>';
+            if (negatives.length) html += '<div class="negative" style="margin-top:6px;">' + negatives.join('<br>') + '</div>';
+            if (suggestions.length) html += '<div class="suggestion" style="margin-top:6px;">' + suggestions.join('<br>') +
+                '</div>';
+            if (!html) html = '<p style="color:#718096;">📊 تقييمك اليومي سيظهر هنا عند نهاية اليوم.</p>';
+
+            reportDiv.innerHTML = html;
+        }
+
+        function updateHistory() {
+            var list = document.getElementById('historyList');
+            var html = '';
+            var indices = [];
+            for (var key in completed) { if (completed.hasOwnProperty(key)) indices.push(parseInt(key)); }
+            for (var key2 in skipped) { if (skipped.hasOwnProperty(key2)) indices.push(parseInt(key2)); }
+            indices.sort(function(a, b) { return a - b; });
+
+            if (indices.length === 0) {
+                html = '<p style="color:#a0aec0; font-size:13px;">لا يوجد سجل بعد.</p>';
+            } else {
+                for (var i = 0; i < indices.length; i++) {
+                    var idx = indices[i];
+                    var task = allTasks[idx];
+                    if (!task) continue;
+                    var status = completed[idx] ? '✅ منفذة' : '⏭️ متخطية';
+                    var cls = completed[idx] ? 'done' : 'skipped';
+                    html += '<div class="entry"><span class="h-time">' + task.time + '</span><span class="h-task">' + task
+                        .icon + ' ' + task.title + '</span><span class="h-status ' + cls + '">' + status + '</span></div>';
+                }
+            }
+            list.innerHTML = html;
+        }
+
+        function toggleHistory() {
+            var list = document.getElementById('historyList');
+            list.classList.toggle('show');
+        }
+
+        var lastNotified = -1;
+
+        function sendNotification(idx) {
+            if (idx === -1 || idx === lastNotified) return;
+            lastNotified = idx;
+            var task = allTasks[idx];
+            if (!task) return;
+
+            showToast('⏰ حان وقت: ' + task.icon + ' ' + task.title + ' — ' + task.desc);
+
+            if ('Notification' in window && Notification.permission === 'granted') {
+                try {
+                    new Notification('⏰ تذكير من نظامك', {
+                        body: task.icon + ' ' + task.title + ' — ' + task.desc,
+                        icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">⏰</text></svg>'
+                    });
+                } catch (e) {}
+            } else if ('Notification' in window && Notification.permission === 'default') {
+                Notification.requestPermission();
+            }
+        }
+
+        function showToast(msg) {
+            var toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            clearTimeout(toast._hide);
+            toast._hide = setTimeout(function() { toast.classList.remove('show'); }, 6000);
+        }
+
+        function markDone() {
+            var idx = getCurrentIndex();
+            if (idx === -1) return;
+            completed[idx] = true;
+            delete skipped[idx];
+            saveState();
+            showToast('✅ تم التنفيذ! أحسنت');
+            updateDisplay();
+        }
+
+        function markSkip() {
+            var idx = getCurrentIndex();
+            if (idx === -1) return;
+            skipped[idx] = true;
+            delete completed[idx];
+            saveState();
+            showToast('⏭️ تم التخطي');
+            updateDisplay();
+        }
+
+        // ============================================================
+        // 5. بدء التطبيق
+        // ============================================================
+        if ('Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission();
+        }
+
+        updateDisplay();
+
+        setInterval(function() {
+            var newTasks = getTasks();
+            if (newTasks.length !== allTasks.length) {
+                allTasks = newTasks;
+                completed = {};
+                skipped = {};
+                saveState();
+            }
+            updateDisplay();
+        }, 15000);
+
+        showToast('👋 مرحباً! نظامك الكامل مع الشرح يعمل الآن.');
+        console.log('✅ النظام الكامل يعمل!');
+        console.log('📅 اليوم:', getDayName());
+        console.log('📋 عدد المهام:', allTasks.length);
+        console.log('📅 الأسبوع:', getCurrentWeek());
+    </script>
+
+</body>
+</html>
